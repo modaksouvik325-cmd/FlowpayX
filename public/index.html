@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlowPayX</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root{
+      --bg:#0b1020;
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.08);
+      --line:rgba(255,255,255,.08);
+      --text:#e5eefb;
+      --muted:#94a3b8;
+      --accent1:#7c3aed;
+      --accent2:#06b6d4;
+      --good:#10b981;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+    }
+
+    body{
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(124,58,237,.18), transparent 30%),
+        radial-gradient(circle at top right, rgba(6,182,212,.16), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container{
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      padding:20px;
+      margin-bottom:20px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background: linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+      backdrop-filter: blur(14px);
+      box-shadow: 0 20px 60px rgba(0,0,0,.24);
+    }
+
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .logo{
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+
+    .tagline{
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .hero-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      border:none;
+      border-radius:12px;
+      padding:12px 16px;
+      cursor:pointer;
+      font-weight:700;
+      color:white;
+      transition: transform .15s ease, opacity .15s ease, box-shadow .15s ease;
+      box-shadow: 0 10px 25px rgba(0,0,0,.16);
+    }
+
+    button:hover{ transform: translateY(-1px); }
+    button:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+
+    .btn-primary{
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    }
+    .btn-good{
+      background: linear-gradient(90deg, #10b981, #059669);
+    }
+    .btn-warn{
+      background: linear-gradient(90deg, #f59e0b, #f97316);
+    }
+    .btn-bad{
+      background: linear-gradient(90deg, #ef4444, #f43f5e);
+    }
+    .btn-ghost{
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--line);
+      box-shadow:none;
+    }
+    .btn-mini{
+      padding:8px 12px;
+      border-radius:10px;
+      font-size:12px;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:14px;
+      margin-bottom:20px;
+    }
+
+    .card{
+      padding:18px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      backdrop-filter: blur(14px);
+    }
+
+    .card h3{
+      color: var(--muted);
+      font-size:12px;
+      font-weight:700;
+      text-transform: uppercase;
+      letter-spacing:.7px;
+      margin-bottom:10px;
+    }
+
+    .value{
+      font-size:32px;
+      font-weight:800;
+      line-height:1;
+    }
+
+    .value.total{ color: var(--accent2); }
+    .value.created{ color: var(--warn); }
+    .value.locked{ color: #818cf8; }
+    .value.released{ color: var(--good); }
+
+    .panel{
+      padding:22px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.035));
+      backdrop-filter: blur(14px);
+      margin-bottom:20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.18);
+    }
+
+    .panel h2{
+      margin-bottom:16px;
+      font-size:18px;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      gap:12px;
+    }
+
+    input{
+      width:100%;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(6,10,20,.72);
+      color: var(--text);
+      outline:none;
+      transition:border-color .15s ease, transform .15s ease;
+    }
+
+    input:focus{
+      border-color: rgba(124,58,237,.8);
+    }
+
+    input::placeholder{ color:#6b7280; }
+
+    .hint{
+      margin-top:12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height:1.5;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border-radius: 14px;
+      border:1px solid var(--line);
+    }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      min-width: 840px;
+      background: rgba(8,12,24,.55);
+    }
+
+    th, td{
+      padding:14px 12px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      text-align:left;
+      font-size:14px;
+      vertical-align:middle;
+    }
+
+    th{
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing:.7px;
+      font-size:11px;
+      background: rgba(255,255,255,.03);
+    }
+
+    tr:hover td{
+      background: rgba(255,255,255,.015);
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+
+    .badge.created{ background: rgba(245,158,11,.16); color: #fbbf24; }
+    .badge.locked{ background: rgba(99,102,241,.16); color: #a5b4fc; }
+    .badge.released{ background: rgba(16,185,129,.16); color: #6ee7b7; }
+
+    .empty{
+      text-align:center;
+      color: var(--muted);
+      padding:32px 16px;
+    }
+
+    .meta{
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    #toast-container{
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 99999;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .toast{
+      min-width: 280px;
+      max-width: 340px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #111827;
+      border:1px solid var(--line);
+      box-shadow: 0 18px 40px rgba(0,0,0,.28);
+      animation: slideIn .22s ease-out;
+    }
+
+    .toast.success{ border-left: 4px solid var(--good); }
+    .toast.error{ border-left: 4px solid var(--bad); }
+    .toast.info{ border-left: 4px solid var(--accent2); }
+
+    @keyframes slideIn{
+      from{ transform: translateX(120px); opacity:0; }
+      to{ transform: translateX(0); opacity:1; }
+    }
+
+    /* Assistant */
+    .assistant-launcher{
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 28px;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      z-index: 9999;
+      border: 0;
+    }
+
+    .assistant-panel{
+      position: fixed;
+      right: 20px;
+      bottom: 94px;
+      width: 330px;
+      height: 430px;
+      border-radius: 18px;
+      border:1px solid var(--line);
+      background: rgba(10,14,26,.96);
+      box-shadow: 0 30px 80px rgba(0,0,0,.35);
+      overflow:hidden;
+      display:none;
+      flex-direction:column;
+      z-index: 9999;
+      backdrop-filter: blur(16px);
+    }
+
+    .assistant-header{
+      padding:14px 16px;
+      background: linear-gradient(90deg, rgba(124,58,237,.95), rgba(6,182,212,.95));
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+
+    .assistant-title{
+      font-weight:800;
+      font-size:16px;
+    }
+
+    .assistant-sub{
+      font-size:12px;
+      opacity:.9;
+    }
+
+    .assistant-messages{
+      flex:1;
+      padding:14px;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .msg{
+      max-width: 88%;
+      padding:10px 12px;
+      border-radius: 14px;
+      line-height:1.45;
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+
+    .msg.bot{
+      background: rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.06);
+      align-self:flex-start;
+    }
+
+    .msg.user{
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      align-self:flex-end;
+    }
+
+    .assistant-input{
+      display:flex;
+      gap:8px;
+      padding:12px;
+      border-top:1px solid rgba(255,255,255,.06);
+    }
+
+    .assistant-input input{
+      flex:1;
+    }
+
+    .typing{
+      opacity:.75;
+      font-style:italic;
+    }
+
+    @media (max-width: 980px){
+      .cards{ grid-template-columns: repeat(2, 1fr); }
+      .form-grid{ grid-template-columns: 1fr; }
+      .hero{ flex-direction:column; align-items:flex-start; }
+    }
+
+    @media (max-width: 720px){
+      .assistant-panel{
+        width: calc(100vw - 24px);
+        right: 12px;
+        left: 12px;
+        bottom: 88px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="toast-container"></div>
+
+  <div class="container">
+    <div class="hero">
+      <div class="brand">
+        <div class="logo">⚡ FlowPayX</div>
+        <div class="tagline">Programmable payment workflow engine • mock funding • approval release • auto-release timer</div>
+      </div>
+      <div class="hero-actions">
+        <button class="btn-ghost" onclick="loadPayments()">Refresh</button>
+        <button class="btn-bad" onclick="resetAll()">Reset All</button>
+      </div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Total</h3>
+        <div class="value total" id="total-count">0</div>
+      </div>
+      <div class="card">
+        <h3>Created</h3>
+        <div class="value created" id="created-count">0</div>
+      </div>
+      <div class="card">
+        <h3>Locked</h3>
+        <div class="value locked" id="locked-count">0</div>
+      </div>
+      <div class="card">
+        <h3>Released</h3>
+        <div class="value released" id="released-count">0</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>➕ Create Payment</h2>
+      <div class="form-grid">
+        <input type="text" id="title" placeholder="Payment title (e.g. Milestone 1)" />
+        <input type="number" id="amount" placeholder="Amount (INR)" min="1" />
+        <input type="number" id="autoRelease" placeholder="Auto-release seconds (optional)" min="1" />
+        <button class="btn-primary" onclick="createPayment()">Create</button>
+      </div>
+      <div class="hint">
+        Leave auto-release empty for manual approval. Add seconds if you want the payment to release automatically after locking.
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>📊 Payment Dashboard</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Auto Release</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="payments-body">
+            <tr>
+              <td class="empty" colspan="7">No payments yet. Create one above.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <button class="assistant-launcher" onclick="toggleAssistant()" title="Flow Assistant">💬</button>
+
+  <div class="assistant-panel" id="assistant-panel">
+    <div class="assistant-header">
+      <div class="assistant-title">Flow Assistant</div>
+      <div class="assistant-sub">Simple guide for FlowPayX workflow</div>
+    </div>
+    <div class="assistant-messages" id="assistant-messages"></div>
+    <div class="assistant-input">
+      <input id="assistant-input" type="text" placeholder="Ask me about payments..." />
+      <button class="btn-primary" onclick="sendAssistant()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const API = "http://localhost:3000";
+    let paymentsCache = [];
+
+    function toast(message, type = "info") {
+      const el = document.createElement("div");
+      el.className = `toast ${type}`;
+      el.textContent = message;
+      document.getElementById("toast-container").appendChild(el);
+      setTimeout(() => el.remove(), 3200);
+    }
+
+    function money(n) {
+      return Number(n || 0).toLocaleString("en-IN");
+    }
+
+    function statusBadge(status) {
+      return `<span class="badge ${status}">${status}</span>`;
+    }
+
+    function formatTime(value) {
+      if (!value) return "—";
+      try {
+        return new Date(value).toLocaleString();
+      } catch {
+        return "—";
+      }
+    }
+
+    function renderStats(payments) {
+      document.getElementById("total-count").textContent = payments.length;
+      document.getElementById("created-count").textContent = payments.filter(p => p.status === "created").length;
+      document.getElementById("locked-count").textContent = payments.filter(p => p.status === "locked").length;
+      document.getElementById("released-count").textContent = payments.filter(p => p.status === "released").length;
+    }
+
+    function renderPayments(payments) {
+      const body = document.getElementById("payments-body");
+
+      if (!payments.length) {
+        body.innerHTML = `<tr><td colspan="7" class="empty">No payments yet. Create one above.</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = payments.map(p => {
+        let actions = "";
+        if (p.status === "created") {
+          actions = `<button class="btn-mini btn-primary" onclick="fundPayment('${p.id}')">Fund</button>`;
+        } else if (p.status === "locked") {
+          actions = `<button class="btn-mini btn-good" onclick="approvePayment('${p.id}')">Approve</button>`;
+        } else {
+          actions = `<span class="meta">Completed</span>`;
+        }
+
+        const autoRelease = p.autoReleaseSeconds ? `${p.autoReleaseSeconds}s` : "—";
+
+        return `
+          <tr>
+            <td><strong>${p.id}</strong></td>
+            <td>
+              <div>${p.title || "Untitled"}</div>
+              <div class="meta">${p.condition ? p.condition : (p.autoReleaseSeconds ? "time" : "approval")}</div>
+            </td>
+            <td>₹${money(p.amount)}</td>
+            <td>${statusBadge(p.status)}</td>
+            <td>${formatTime(p.createdAt)}</td>
+            <td>${autoRelease}</td>
+            <td>${actions}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function loadPayments() {
+      try {
+        const res = await fetch(`${API}/payments`);
+        const data = await res.json();
+
+        if (data.success) {
+          paymentsCache = data.payments || [];
+          renderStats(paymentsCache);
+          renderPayments(paymentsCache);
+        } else {
+          toast(data.message || "Failed to load payments", "error");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function createPayment() {
+      const title = document.getElementById("title").value.trim();
+      const amount = document.getElementById("amount").value;
+      const autoRelease = document.getElementById("autoRelease").value.trim();
+
+      if (!title || !amount) {
+        toast("Please enter title and amount", "error");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/create-payment`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title,
+            amount: Number(amount),
+            autoReleaseSeconds: autoRelease ? Number(autoRelease) : null
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          toast(`Payment created: ${data.payment.id}`, "success");
+          document.getElementById("title").value = "";
+          document.getElementById("amount").value = "";
+          document.getElementById("autoRelease").value = "";
+          loadPayments();
+        } else {
+          toast(data.message || "Failed to create payment", "error");
+        }
+      } catch (err) {
+        console.error(err);
+        toast("Network error while creating payment", "error");
+      }
+    }
+
+    async function fundPayment(paymentId) {
+      try {
+        toast("Opening payment gateway...", "info");
+
+        setTimeout(async () => {
+          try {
+            const res = await fetch(`${API}/fund-payment/${paymentId}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" }
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+              toast(data.message || "Payment funded successfully", "success");
+              loadPayments();
+            } else {
+              toast(data.message || "Failed to fund payment", "error");
+            }
+          } catch (err) {
+            console.error(err);
+            toast("Payment failed", "error");
+          }
+        }, 1200);
+      } catch (err) {
+        console.error(err);
+        toast("Payment failed", "error");
+      }
+    }
+
+    async function approvePayment(paymentId) {
+      try {
+        const res = await fetch(`${API}/approve-payment/${paymentId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          toast(data.message || "Payment released", "success");
+          loadPayments();
+        } else {
+          toast(data.message || "Cannot release payment", "error");
+        }
+      } catch (err) {
+        console.error(err);
+        toast("Network error while approving payment", "error");
+      }
+    }
+
+    async function resetAll() {
+      if (!confirm("Reset all payments?")) return;
+
+      try {
+        const res = await fetch(`${API}/reset`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" }
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          toast(data.message || "All payments reset", "info");
+          loadPayments();
+        } else {
+          toast(data.message || "Reset failed", "error");
+        }
+      } catch (err) {
+        console.error(err);
+        toast("Network error while resetting", "error");
+      }
+    }
+// =========================
+// APPY WORKFLOW ASSISTANT
+// =========================
+
+const knowledgeBase = [
+
+  {
+    keywords: ["problem", "solve", "issue"],
+    answer:
+      "FlowPayX solves trust and workflow issues in digital payments by allowing funds to move only after approvals or programmable conditions are completed."
+  },
+
+  {
+    keywords: ["benefit", "advantage", "why use", "helpful"],
+    answer:
+      "FlowPayX improves trust and control in transactions by introducing programmable payment workflows instead of instant transfers."
+  },
+
+  {
+    keywords: ["programmable", "programmable payment"],
+    answer:
+      "Programmable payments allow money movement to follow workflow logic such as approvals, timers, and escrow conditions."
+  },
+
+  {
+    keywords: ["workflow", "workflow engine", "engine"],
+    answer:
+      "The workflow engine manages payment states like created, locked, and released while enforcing secure transition rules."
+  },
+
+  {
+    keywords: ["locked", "lock payment"],
+    answer:
+      "Locked payments simulate escrow-style protection where funds remain secured until approval or release conditions are satisfied."
+  },
+
+  {
+    keywords: ["escrow"],
+    answer:
+      "Escrow means funds are temporarily secured until predefined conditions are completed."
+  },
+
+  {
+    keywords: ["approve", "approval"],
+    answer:
+      "Only locked payments can be approved. This prevents invalid or unauthorized payment releases."
+  },
+
+  {
+    keywords: ["upi", "difference", "traditional payment"],
+    answer:
+      "Traditional UPI transfers funds instantly. FlowPayX introduces workflow-controlled payment states like locking and approval."
+  },
+
+  {
+    keywords: ["use case", "applications", "real world"],
+    answer:
+      "FlowPayX can support freelancer milestones, payroll approvals, B2B settlements, subscriptions, and escrow-based workflows."
+  },
+
+  {
+    keywords: ["security", "safe"],
+    answer:
+      "The workflow engine validates payment states before transitions to maintain workflow integrity and security."
+  },
+
+  {
+    keywords: ["scale", "scalable"],
+    answer:
+      "The current MVP uses lightweight storage, but the architecture can scale using databases, queues, and distributed services."
+  },
+
+  {
+    keywords: ["future", "vision", "roadmap"],
+    answer:
+      "Future versions could include AI-driven workflows, fraud analysis, smart contracts, and multi-party approvals."
+  },
+
+  {
+    keywords: ["gateway", "razorpay", "integration"],
+    answer:
+      "The current MVP uses simulated funding, but the architecture supports real payment gateway integration."
+  },
+
+  {
+    keywords: ["innovation", "innovative"],
+    answer:
+      "FlowPayX transforms static payments into programmable workflow-driven financial operations."
+  },
+
+  {
+    keywords: ["freelancer", "gig"],
+    answer:
+      "Freelancers benefit because payments remain protected until milestones are completed and approved."
+  }
+
+];
+
+
+// =========================
+// APPY CHAT FUNCTIONS
+// =========================
+
+function toggleAssistant() {
+
+  const panel = document.getElementById("assistant-panel");
+
+  panel.style.display =
+    panel.style.display === "flex"
+      ? "none"
+      : "flex";
+
+  if (
+    panel.style.display === "flex" &&
+    document.getElementById("assistant-messages").children.length === 0
+  ) {
+
+    addBotMessage(
+      "Hi, I’m Appy 👋\n\nI can explain workflow engines, escrow protection, approvals, programmable payments, and how FlowPayX works."
+    );
+
+  }
+
+}
+
+
+function addMessage(text, who) {
+
+  const box = document.getElementById("assistant-messages");
+
+  const div = document.createElement("div");
+
+  div.className = `msg ${who}`;
+
+  div.textContent = text;
+
+  box.appendChild(div);
+
+  box.scrollTop = box.scrollHeight;
+
+  return div;
+
+}
+
+
+function addBotMessage(text) {
+
+  addMessage(text, "bot");
+
+}
+
+
+function findPaymentByText(text) {
+
+  const match = text.match(/(?:FPX-\\d{4}|PAY-\\d{4})/i);
+
+  if (!match) return null;
+
+  return paymentsCache.find(
+    p =>
+      String(p.id).toLowerCase() ===
+      match[0].toLowerCase()
+  );
+
+}
+
+
+function assistantReply(text) {
+
+  const input = text.toLowerCase();
+
+  const payment = findPaymentByText(input);
+
+  // Dynamic payment awareness
+
+  if (payment) {
+
+    return `Payment ${payment.id} is currently ${payment.status}. Amount: ₹${money(payment.amount)}. ${
+      payment.status === "created"
+        ? "The payment has been created and is waiting for funding."
+        : payment.status === "locked"
+        ? "The funds are securely locked and waiting for approval or auto-release."
+        : "This payment workflow has completed successfully."
+    }`;
+
+  }
+
+  // Knowledge base search
+
+  for (const item of knowledgeBase) {
+
+    for (const keyword of item.keywords) {
+
+      if (input.includes(keyword)) {
+        return item.answer;
+      }
+
+    }
+
+  }
+
+  // Smart contextual fallbacks
+
+  if (
+    input.includes("how") &&
+    input.includes("work")
+  ) {
+
+    return "FlowPayX follows a programmable workflow lifecycle: created → locked → released. Payments only move forward when workflow conditions are satisfied.";
+
+  }
+
+  if (
+    input.includes("ai")
+  ) {
+
+    return "Appy is a workflow-focused assistant designed to explain payment logic, escrow workflows, approvals, and programmable finance concepts.";
+
+  }
+
+  // Default fallback
+
+  return "I can explain workflow engines, escrow protection, approvals, programmable payments, payment security, scalability, and FlowPayX architecture.";
+
+}
+
+
+function sendAssistant() {
+
+  const input = document.getElementById("assistant-input");
+
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  addMessage(text, "user");
+
+  input.value = "";
+
+  const typing = addMessage(
+    "Appy is thinking...",
+    "bot typing"
+  );
+
+  setTimeout(() => {
+
+    typing.remove();
+
+    addBotMessage(
+      assistantReply(text)
+    );
+
+  }, 500);
+
+}
+
+
+document
+  .getElementById("assistant-input")
+  .addEventListener("keydown", (e) => {
+
+    if (e.key === "Enter") {
+      sendAssistant();
+    }
+
+  });
+  </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "flowpayx",
+  "version": "1.0.0",
+  "description": "FlowPayX - Programmable Payment Workflow MVP (Hackathon)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "fintech",
+    "razorpay",
+    "payments",
+    "workflow",
+    "hackathon"
+  ],
+  "author": "FlowPayX Team",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "razorpay": "^2.9.4"
+  }
+}
